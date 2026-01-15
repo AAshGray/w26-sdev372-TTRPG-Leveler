@@ -8,7 +8,7 @@ VALUES ('Fighter', 'Martial', 10, 'STR');
 
 -- 3. Insert a level 1 character linked to the user
 INSERT INTO characters (
-    user_id, char_name, total_level, total_hp, initative_bonus, 
+    user_id, char_name, total_level, total_hp, initiative_bonus, 
     strength, dexterity, constitution, intelligence, wisdom, charisma, languages
 )
 VALUES (

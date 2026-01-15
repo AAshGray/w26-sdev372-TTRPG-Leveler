@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS characters (
     char_name VARCHAR(100) NOT NULL,
     total_level INT DEFAULT 1,
     total_hp INT DEFAULT 1,
-    initative_bonus INT DEFAULT 0,
+    initiative_bonus INT DEFAULT 0,
     strength INT DEFAULT 10,
     dexterity INT DEFAULT 10,
     constitution INT DEFAULT 10,
