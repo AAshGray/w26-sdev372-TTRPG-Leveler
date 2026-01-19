@@ -1,8 +1,7 @@
-import sequelize from '..'
+import sequelize from '../config/sequelize.js';
 
 import defineAbilities from './abilities.js';
 import defineAbilityPrerequisiteList from './ability_prerequisite_list.js';
-import character_abilities from './character_abilities.js';
 import defineCharacterAbilities from './character_abilities.js';
 import defineCharacterClasses from './character_classes.js';
 import defineCharacters from './characters.js';
