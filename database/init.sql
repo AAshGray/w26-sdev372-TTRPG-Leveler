@@ -36,7 +36,7 @@ CREATE TABLE IF NOT EXISTS class_reference (
     class_name VARCHAR(50) NOT NULL UNIQUE,
     class_type VARCHAR(50),
     hit_die INT NOT NULL,
-    primary_stat VARCHAR(50) NOT NULL,
+    primary_stat VARCHAR(50) NOT NULL
 );
 
 -- CREATE TABLE IF NOT EXISTS prerequisite_ability_list(
