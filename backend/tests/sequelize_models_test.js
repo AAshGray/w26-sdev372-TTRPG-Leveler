@@ -1,9 +1,6 @@
 import { sequelize } from '../config/database.js';
 import db from '../models/index.js';
-
-function randomString(length = 6) {
-  return Math.random().toString(36).substring(2, 2 + length);
-}
+import randomString from '../test_utilities.js';
 
 async function testTTRPGModels() {
   try {
