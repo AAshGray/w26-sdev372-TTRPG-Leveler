@@ -24,5 +24,8 @@ export default (sequelize) => {
             type: DataTypes.STRING(50),
             allowNull: false
         },
-    });
+    },
+    { timestamps: false,
+      freezeTableName: true
+     });
 }

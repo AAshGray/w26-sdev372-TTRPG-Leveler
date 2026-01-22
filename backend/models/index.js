@@ -1,4 +1,4 @@
-import sequelize from '../config/sequelize.js';
+import {sequelize} from '../config/database.js';
 
 import defineAbilities from './abilities.js';
 import defineAbilityPrerequisiteList from './ability_prerequisite_list.js';
@@ -15,6 +15,17 @@ const CharacterClasses = defineCharacterClasses(sequelize);
 const Characters = defineCharacters(sequelize);
 const ClassReference = defineClassReference(sequelize);
 const Users = defineUsers(sequelize);
+
+const db = {
+    sequelize,
+    Abilities,
+    AbilityPrerequisiteList,
+    CharacterAbilities,
+    CharacterClasses,
+    Characters,
+    ClassReference,
+    Users
+}
 
 Users.hasMany(Characters, { foreignKey: 'user_id', as: 'characters' });
 Characters.belongsTo(Users, { foreignKey: 'user_id', as: 'user' });
@@ -34,13 +45,4 @@ CharacterAbilities.belongsTo(Characters, { foreignKey: 'character_id', as: 'char
 CharacterAbilities.belongsTo(Abilities, { foreignKey: 'ability_id', as: 'ability' });
 Abilities.hasMany(CharacterAbilities, { foreignKey: 'ability_id', as: 'character_abilities' });
 
-export default {
-    Abilities,
-    AbilityPrerequisiteList,
-    CharacterAbilities,
-    CharacterClasses,
-    Characters,
-    ClassReference,
-    Users,
-    sequelize
-}
+export default db;
