@@ -12,7 +12,7 @@ export default (sequelize) => {
             allowNull: false,
             unique: true,
         },
-        email: {
+        user_email: {
             type: DataTypes.STRING,
             allowNull: false,
             unique: true,
@@ -20,9 +20,10 @@ export default (sequelize) => {
                 isEmail: true,
             },
         },
-        password: {
+        user_password: {
             type: DataTypes.STRING(255),
             allowNull: false,
         }
-    });
+    },
+    { timestamps: false });
 }

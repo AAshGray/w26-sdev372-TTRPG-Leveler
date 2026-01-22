@@ -25,5 +25,8 @@ export default (sequelize) => {
                 ondelete: 'CASCADE'
             }
         }
-    });
+    },
+    { timestamps: false,
+      freezeTableName: true
+     });
 }

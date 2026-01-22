@@ -59,5 +59,6 @@ export default (sequelize) => {
         languages: {
             type: DataTypes.STRING(255),
         }
-    });
+    },
+    { timestamps: false });
 }
