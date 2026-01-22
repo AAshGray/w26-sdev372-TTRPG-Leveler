@@ -1,4 +1,5 @@
-
+import db from '../models/index.js';
+import {Op} from 'sequelize';
 
 export async function createCharacter(characterData) {
     return await db.Characters.create(characterData);
