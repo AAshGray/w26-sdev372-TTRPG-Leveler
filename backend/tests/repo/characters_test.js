@@ -7,27 +7,23 @@ import {
   findAllCharactersByUserId,
   updateCharacter,
 } from '../../repos/characters.repo.js';
-
-
-function randomString(length = 6) {
-  return Math.random().toString(36).substring(2, 2 + length);
-}
+import randomString from '../test_utilities.js';
 
 async function testCharacterRepository() {
   try {
     await db.sequelize.authenticate();
 
-    const suffix = randomString();
+    const randomStr = randomString();
 
     const user = await createUser({
-      user_name: `TestUser_${suffix}`,
-      user_email: `testuser_${suffix}@example.com`,
+      user_name: `TestUser_${randomStr}`,
+      user_email: `testuser_${randomStr}@example.com`,
       user_password: 'password123'
     });
 
     const character = await createCharacter({
       user_id: user.id,
-      char_name: `Hero_${suffix}`,
+      char_name: `Hero_${randomStr}`,
       total_level: 1,
       total_hp: 12,
       initiative_bonus: 2,
@@ -40,7 +36,7 @@ async function testCharacterRepository() {
       languages: 'Common, Elvish'
     });
 
-    assert.strictEqual(character.char_name, `Hero_${suffix}`, 'Character name should match');
+    assert.strictEqual(character.char_name, `Hero_${randomStr}`, 'Character name should match');
     assert.strictEqual(character.user_id, user.id, 'Character user_id should match');
 
     const foundChar = await findCharacterById(character.id);
@@ -52,7 +48,7 @@ async function testCharacterRepository() {
     assert.strictEqual(userChars.length, 1, 'There should be exactly one character for the user');
     assert.strictEqual(userChars[0].char_name, character.char_name, 'Character name should match in findAll');
 
-    const updatedName = `SuperHero_${suffix}`;
+    const updatedName = `SuperHero_${randomStr}`;
     await updateCharacter(character.id, { char_name: updatedName });
     const updatedChar = await findCharacterById(character.id);
     assert.strictEqual(updatedChar.char_name, updatedName, 'Character name should be updated');
