@@ -42,3 +42,15 @@ export function getTestClassInput() {
     primary_stat: `stat_${randomStr}`
   };
 }
+
+export function getTestAbilityInput(classId) {
+  const randomStr = randomString(6);
+
+  return {
+    class_id: classId,
+    ability_name: `ability_${randomStr}`,
+    ability_description: `description_${randomStr}`,
+    ability_type: `type_${randomStr}`,
+    level_required: 1,
+  };
+}
