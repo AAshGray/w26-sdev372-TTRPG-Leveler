@@ -1,6 +1,10 @@
 import { testConnection } from '../config/database.js';
 
-(async () => {
-    const connected = await testConnection();
-    if (!connected) process.exit(1);
-})();
+async function testSequelizeConnection() {
+    const isConnected = await testConnection();
+    if (!isConnected) {
+        throw new Error('Sequelize failed to connect to the database');
+    }
+    console.log('Sequelize connection test passed');
+    await testConnection.close();
+}
