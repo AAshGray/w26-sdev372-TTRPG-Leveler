@@ -23,7 +23,7 @@ function CharacterDisplay() {
             setLoading(true);
             setError(null);
 
-            const char = await characterController.getCharacter('a');
+            const char = await characterController.getCharacter(id);
             setCharacter(char);
         } catch (err) {
             setError(err.message || 'Failed to fetch character');
