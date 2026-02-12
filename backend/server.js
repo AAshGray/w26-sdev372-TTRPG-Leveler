@@ -11,7 +11,9 @@ import characterRoutes from './routes/characters.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const BACKEND_PORT = process.env.BACKEND_PORT || 3000;
+const HOST = process.env.NODE_ENV = 'production' ? '0.0.0.0' : 'localhost';
+const API_BASE_URL = `http://${HOST}:${BACKEND_PORT}/api`;
 
 // Middleware
 app.use(cors()); // Enable CORS for frontend
@@ -75,9 +77,9 @@ async function startServer() {
         console.error('Please check your database configuration in .env file');
     }
 
-    app.listen(PORT, () => {
-        console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-        console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
+    app.listen(BACKEND_PORT, '0.0.0.0', () => {
+        console.log(`\n🚀 Server running on ${API_BASE_URL}`);
+        console.log(`📊 API endpoints available at ${API_BASE_URL}`);
         console.log(`\nPress Ctrl+C to stop the server\n`);
     });
 }

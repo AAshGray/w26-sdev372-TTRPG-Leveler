@@ -28,3 +28,28 @@ Solve the issue of crappy character sheets past level 1 for TTRPG players who wo
 ## 4. User Experience
 ### User Flows
 When a user is upon their character sheet, they should be able to state they wish to level up, and the website then presents either what the player should look for – or what exact options they have at their disposal.
+
+## Environment Variables Reference
+Below is a reference of all environment variables used in this project. Use `.env.example` as a template and fill in your values:
+
+```dotenv
+# Status (environment)
+# Options: production, development
+NODE_ENV=development
+
+# SQL Database Configuration
+DB_HOST=
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+DB_ROOT_PASSWORD=
+DB_PORT=
+
+# Backend Server Configuration
+BACKEND_PORT=3000
+
+# Frontend Server Configuration
+FRONTEND_PORT=80
+
+# VITE Frontend API Base URL
+VITE_API_BASE_URL=http://api:3000/api
