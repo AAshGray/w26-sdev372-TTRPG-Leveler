@@ -38,6 +38,18 @@ app.get('/api/health', (req, res) => {
     });
 });
 
+// API Root endpoint
+app.get('/api', (req, res) => {
+    res.json({
+        message: 'TTRPG Character Leveler API',
+        version: '1.0.0',
+        endpoints: {
+            health: '/api/health',
+            characters: '/api/characters'
+        }
+    });
+});
+
 // Root endpoint
 app.get('/', (req, res) => {
     res.json({
