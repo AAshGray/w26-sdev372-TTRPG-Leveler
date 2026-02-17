@@ -1,8 +1,8 @@
-DROP DATABASE IF EXISTS ttrpg_leveler;
+DROP DATABASE IF EXISTS ttrpg_db;
 
 -- Create Database
-CREATE DATABASE IF NOT EXISTS ttrpg_leveler;
-USE ttrpg_leveler;
+CREATE DATABASE IF NOT EXISTS ttrpg_db;
+USE ttrpg_db;
 
 -- Create Users Table
 CREATE TABLE IF NOT EXISTS users (
