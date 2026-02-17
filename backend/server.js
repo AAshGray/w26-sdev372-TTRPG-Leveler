@@ -36,8 +36,8 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// API Root endpoint
-app.get('/api', (req, res) => {
+// API Root response
+const rootHandler = (req, res) => {
     res.json({
         message: 'TTRPG Character Leveler API',
         version: '1.0.0',
@@ -46,19 +46,13 @@ app.get('/api', (req, res) => {
             characters: '/api/characters'
         }
     });
-});
+};
+
+// API Root endpoint
+app.get('/api', rootHandler);
 
 // Root endpoint
-app.get('/', (req, res) => {
-    res.json({
-        message: 'TTRPG Character Leveler API',
-        version: '1.0.0',
-        endpoints: {
-            health: '/api/health',
-            characters: '/api/characters'
-        }
-    });
-});
+app.get('/', rootHandler);
 
 // 404 handler
 app.use((req, res) => {
@@ -83,14 +77,15 @@ async function startServer() {
     const dbConnected = await testConnection();
 
     if (!dbConnected) {
-        console.error('⚠️  Server starting without database connection');
+        console.error('Server starting without database connection');
         console.error('Please check your database configuration in .env file');
     }
 
     app.listen(PORT, () => {
-        console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-        console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
-        console.log(`\nPress Ctrl+C to stop the server\n`);
+        console.log(`Server running!`);
+        console.log(`Local:   http://localhost:${PORT}`);
+        console.log(`Docker:  http://localhost:8080 (via Nginx)`);
+        console.log(`API:     http://localhost:${PORT}/api`);
     });
 }
 
