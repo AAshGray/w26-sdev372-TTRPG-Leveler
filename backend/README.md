@@ -23,7 +23,7 @@ DB_PASSWORD=your_actual_password
 DB_NAME=ttrpg_leveler
 DB_PORT=3306
 
-PORT=3000
+BACKEND_PORT=3000
 NODE_ENV=development
 ```
 
