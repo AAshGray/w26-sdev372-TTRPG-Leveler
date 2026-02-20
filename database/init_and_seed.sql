@@ -102,7 +102,8 @@ VALUES ('testuser', 'testuser@example.com', 'password123');
 INSERT INTO class_reference (class_name, class_type, hit_die, primary_stat)
 VALUES 
 ('Fighter', 'Martial', 10, 'STR'),
-('Wizard', 'Arcane', 6, 'INT');
+('Wizard', 'Arcane', 6, 'INT'),
+('Cleric', 'Divine', 8, 'WIS');
 
 -- 3. Add abilities (skills, feats, class features)
 INSERT INTO abilities (class_id, ability_name, ability_description, ability_type, level_required)
@@ -174,6 +175,73 @@ VALUES
  'Once per day on a short rest, you can recover spell slots with a combined level equal to half your wizard level (rounded up).', 
  'Class Feature', 1),
  
+-- Cleric Features
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Spellcasting (Cleric)', 
+ 'You can cast divine spells using Wisdom as your spellcasting ability.', 
+ 'Class Feature', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Divine Domain', 
+ 'Choose one domain related to your deity. Your choice grants you domain spells and other features.', 
+ 'Class Feature', 1),
+
+-- Cleric Domains
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Arcana Domain', 
+ 'The Arcana domain focuses on the study and use of magic.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Death Domain', 
+ 'The Death domain is about the power of death and undeath.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Forge Domain', 
+ 'The Forge domain is all about artisan work, from the humble smith to the master artificer.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Grave Domain', 
+ 'The Grave domain watches over the line between life and death.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Knowledge Domain', 
+ 'The Knowledge domain is about the pursuit of knowledge and wisdom.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Life Domain', 
+ 'The Life domain focuses on the vibrant positive energy that sustains all life.', 
+ 'Subclass', 1),
+ ((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Light Domain', 
+ 'The Light domain is aobut rebirth, renewal, truth and beauty.', 
+ 'Subclass', 1),
+ ((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Nature Domain', 
+ 'The Nature domain is about the power of nature, the changing of seasons, and natural processes.', 
+ 'Subclass', 1),
+ ((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Order Domain', 
+ 'The Order domain is about the power of order and law.', 
+ 'Subclass', 1),
+ ((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Peace Domain', 
+ 'The Peace domain thrives at the heart of healthy communities.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Tempest Domain', 
+ 'The Tempest domain is about the magnitude of storms and the fury of the elements.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Trickery Domain', 
+ 'The Trickery domain is about the power of trickery and illusion.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'Twilight Domain', 
+ 'The Twilight domain is about the power of twilight and the transition between light and darkness.', 
+ 'Subclass', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+ 'War Domain', 
+ 'The War domain is about the nobility of battle and the strength of arms.', 
+ 'Subclass', 1),
 
 -- Saving Throws
 (NULL, 'Strength Save', 'Proficiency in Strength saving throws', 'Saving Throw', 1),
@@ -387,6 +455,82 @@ VALUES
  ),
  'Choose 2 skill proficiencies from: Arcana, History, Insight, Investigation, Medicine, or Religion.');
 
+-- 4.3. Insert level unlocks for Cleric level 1
+INSERT INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
+VALUES
+-- Hit Points
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'), 1, 'Hit Points', 1,
+    JSON_OBJECT(
+        'die', 8,
+        'modifier', 'wisdom'
+    ),
+ 'Clerics start with 8 + Wisdom modifier hit points at 1st level.'),
+
+-- Cleric Features (automatic)
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'), 1, 'Class Feature', 1,
+ JSON_OBJECT(
+     'ability_ids', (
+         SELECT JSON_ARRAYAGG(id) 
+         FROM abilities 
+         WHERE class_id = (SELECT id FROM class_reference WHERE class_name = 'Cleric')
+         AND ability_type = 'Class Feature'
+         AND level_required = 1
+     ),
+     'automatic', true
+ ),
+ 'Clerics gain their starting class features.'),
+
+-- Divine Domain Choice (choose 1)
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'), 1, 'Subclass', 1,
+ JSON_OBJECT(
+     'ability_ids', (
+         SELECT JSON_ARRAYAGG(id) 
+         FROM abilities 
+         WHERE class_id = (SELECT id FROM class_reference WHERE class_name = 'Cleric')
+         AND ability_type = 'Subclass'
+     ),
+     'category', 'Domain'
+ ),
+ 'Choose a Divine Domain.'),
+
+-- Saving throw proficiencies (automatic)
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'), 1, 'Saving Throw', 2,
+ JSON_OBJECT(
+     'ability_ids', JSON_ARRAY(
+         (SELECT id FROM abilities WHERE ability_name = 'Wisdom Save'),
+         (SELECT id FROM abilities WHERE ability_name = 'Charisma Save')
+     ),
+     'automatic', true
+ ),
+ 'Clerics are proficient in Wisdom and Charisma saving throws.'),
+
+-- Armor/Weapon proficiencies (automatic)
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'), 1, 'Proficiency', 1,
+ JSON_OBJECT(
+     'ability_ids', JSON_ARRAY(
+         (SELECT id FROM abilities WHERE ability_name = 'Light Armor'),
+         (SELECT id FROM abilities WHERE ability_name = 'Medium Armor'),
+         (SELECT id FROM abilities WHERE ability_name = 'Shields'),
+         (SELECT id FROM abilities WHERE ability_name = 'Simple Weapons')
+     ),
+     'automatic', true
+ ),
+ 'Clerics are proficient with light and medium armor, shields, and simple weapons.'),
+
+-- Skill proficiencies (choose 2)
+((SELECT id FROM class_reference WHERE class_name = 'Cleric'), 1, 'Skill Proficiency', 2,
+ JSON_OBJECT(
+     'ability_ids', JSON_ARRAY(
+         (SELECT id FROM abilities WHERE ability_name = 'History'),
+         (SELECT id FROM abilities WHERE ability_name = 'Insight'),
+         (SELECT id FROM abilities WHERE ability_name = 'Medicine'),
+         (SELECT id FROM abilities WHERE ability_name = 'Persuasion'),
+         (SELECT id FROM abilities WHERE ability_name = 'Religion')
+     ),
+     'category', 'Skill'
+ ),
+ 'Choose 2 skill proficiencies from: History, Insight, Medicine, Persuasion, or Religion.');
+
 -- Insert "Test Hero" character
 INSERT INTO characters (
     user_id, char_name, total_level, total_hp, initiative_bonus, 
@@ -518,3 +662,53 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Arcana'), TRUE, 2),
     ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
      (SELECT id FROM abilities WHERE ability_name = 'Investigation'), TRUE, 2);
+
+-- 7. Insert "Cassandra the Cleric" (Test Cleric)
+INSERT INTO characters (
+    user_id, char_name, total_level, total_hp, initiative_bonus, 
+    strength, dexterity, constitution, intelligence, wisdom, charisma, languages
+)
+VALUES (
+    (SELECT id FROM users WHERE user_name = 'testuser'),
+    'Cassandra the Cleric',
+    1,
+    10, -- HP = 8 + Wis mod (2)
+    1, -- Init = Dex mod (+1)
+    10, 12, 13, 10, 15, 14,
+    'Common, Celestial, Dwarvish'
+);
+
+INSERT INTO character_classes (character_id, class_id, class_level)
+VALUES (
+    (SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+    (SELECT id FROM class_reference WHERE class_name = 'Cleric'),
+    1
+);
+
+-- Automatic Features
+INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+VALUES 
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Spellcasting (Cleric)'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Wisdom Save'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Charisma Save'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Light Armor'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Medium Armor'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Shields'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Simple Weapons'), TRUE, 0);
+
+-- Chosen Subclass/Skills
+INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+VALUES 
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Life Domain'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Medicine'), TRUE, 2),
+    ((SELECT id FROM characters WHERE char_name = 'Cassandra the Cleric'),
+     (SELECT id FROM abilities WHERE ability_name = 'Persuasion'), TRUE, 2);
