@@ -11,7 +11,9 @@ import characterRoutes from './routes/characters.js';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const BACKEND_PORT = process.env.BACKEND_PORT || 3000;
+const HOST = process.env.NODE_ENV = 'production' ? '0.0.0.0' : 'localhost';
+const API_BASE_URL = `http://${HOST}:${BACKEND_PORT}/api`;
 
 // Middleware
 app.use(cors()); // Enable CORS for frontend
@@ -36,8 +38,8 @@ app.get('/api/health', (req, res) => {
     });
 });
 
-// Root endpoint
-app.get('/', (req, res) => {
+// API Root response
+const rootHandler = (req, res) => {
     res.json({
         message: 'TTRPG Character Leveler API',
         version: '1.0.0',
@@ -46,7 +48,13 @@ app.get('/', (req, res) => {
             characters: '/api/characters'
         }
     });
-});
+};
+
+// API Root endpoint
+app.get('/api', rootHandler);
+
+// Root endpoint
+app.get('/', rootHandler);
 
 // 404 handler
 app.use((req, res) => {
@@ -71,14 +79,15 @@ async function startServer() {
     const dbConnected = await testConnection();
 
     if (!dbConnected) {
-        console.error('⚠️  Server starting without database connection');
+        console.error('Server starting without database connection');
         console.error('Please check your database configuration in .env file');
     }
 
     app.listen(PORT, () => {
-        console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-        console.log(`📊 API endpoints available at http://localhost:${PORT}/api`);
-        console.log(`\nPress Ctrl+C to stop the server\n`);
+        console.log(`Server running!`);
+        console.log(`Local:   http://localhost:${PORT}`);
+        console.log(`Docker:  http://localhost:8080 (via Nginx)`);
+        console.log(`API:     http://localhost:${PORT}/api`);
     });
 }
 

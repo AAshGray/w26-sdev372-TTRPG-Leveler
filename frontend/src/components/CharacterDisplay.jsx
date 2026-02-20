@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import characterController from '../controllers/CharacterController';
 import './CharacterDisplay.css';
 
@@ -7,21 +8,22 @@ import './CharacterDisplay.css';
  * Displays the currently selected character
  */
 function CharacterDisplay() {
+    const { id } = useParams();
+    const navigate = useNavigate();
     const [character, setCharacter] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         fetchCharacter();
-    }, []);
+    }, [id]);
 
     const fetchCharacter = async () => {
         try {
             setLoading(true);
             setError(null);
 
-            // Fetch character with ID 1 (test character)
-            const char = await characterController.getCharacter(1);
+            const char = await characterController.getCharacter(id);
             setCharacter(char);
         } catch (err) {
             setError(err.message || 'Failed to fetch character');
@@ -29,6 +31,10 @@ function CharacterDisplay() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleBack = () => {
+        navigate('/');
     };
 
     if (loading) {
@@ -69,6 +75,9 @@ function CharacterDisplay() {
 
     return (
         <div className="character-display">
+            <button onClick={handleBack} className="back-button">
+                ← Back to Characters
+            </button>
             <div className="character-header">
                 <h1>{character.charName}</h1>
                 <div className="character-basics">
