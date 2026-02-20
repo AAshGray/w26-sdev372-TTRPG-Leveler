@@ -100,7 +100,9 @@ VALUES ('testuser', 'testuser@example.com', 'password123');
 
 -- 2. Insert base class
 INSERT INTO class_reference (class_name, class_type, hit_die, primary_stat)
-VALUES ('Fighter', 'Martial', 10, 'STR');
+VALUES 
+('Fighter', 'Martial', 10, 'STR'),
+('Wizard', 'Arcane', 6, 'INT');
 
 -- 3. Add abilities (skills, feats, class features)
 INSERT INTO abilities (class_id, ability_name, ability_description, ability_type, level_required)
@@ -112,6 +114,14 @@ VALUES
  'Class Feature', 1),
 
 -- Fighting Styles
+((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
+ 'Archery Fighting Style', 
+ 'You gain a +2 bonus to attack rolls you make with ranged weapons.', 
+ 'Fighting Style', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
+ 'Blind Fighting', 
+ 'You have blindsight with a range of 10 feet. Within that range, you can effectively see anything that is not behind total cover. Moreover, you can see an invisible creature within that range, unless they successfully hide from you.', 
+ 'Fighting Style', 1),
 ((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
  'Defense Fighting Style', 
  'While you are wearing armor, you gain a +1 bonus to AC.', 
@@ -125,9 +135,45 @@ VALUES
  'When you roll a 1 or 2 on a damage die for an attack with a two-handed weapon, you can reroll the die.', 
  'Fighting Style', 1),
 ((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
- 'Archery Fighting Style', 
- 'You gain a +2 bonus to attack rolls you make with ranged weapons.', 
+ 'Interception', 
+ 'When a creature you can see hits a target other than you within 5 feet, you can use your reaction to reduce the damage the target takes by 1d10 + your profiecency bonus (to a minimum of 0 damage). You must have a shield, simple, or martial weapon to use this reaction.', 
  'Fighting Style', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
+ 'Protection', 
+ 'When a creature you can see attacks a target other than you that is within 5 feet of you, you can use your reaction to impose disadvantage on the attack roll. You must be wielding a shield.', 
+ 'Fighting Style', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
+ 'Superior Technique', 
+ 'You learn one maneuver of your choice from the Battle Master subclass. You also gain one superiority die, a d6, which resets on a rest.', 
+ 'Fighting Style', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
+ 'Thrown Weapon Fighting', 
+ 'When you hit with a thrown weapon, you gain +2 to damage rolls. You can draw a weapon as part of the attack.', 
+ 'Fighting Style', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
+ 'Two-Weapon fighting', 
+ 'When you engage in two-weapon fighting, you can add your ability modifier to the damage of the second attack.', 
+ 'Fighting Style', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Fighter'),
+ 'Unarmed Fighting', 
+ 'Your unarmed strikes can deal bludgeoning damage equal to 1d6 + your Strength modifier. If you are not weilding any weaposn or a shield, your d6 becomes a d8. At the start of each of your turns, you can deal 1d4 bludgeoning damage to one creature you are grappling.', 
+ 'Fighting Style', 1)
+
+
+-- Wizard Features
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'),
+ 'Spellcasting (Wizard)', 
+ 'You can cast arcane spells using Intelligence as your spellcasting ability.', 
+ 'Class Feature', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'),
+ 'Spellbook', 
+ 'At first level, you have a spellbook containing six 1st-level spells of your choice. Your spellbook is the repository of the wizards spells you know', 
+ 'Class Feature', 1),
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'),
+ 'Arcane Recovery', 
+ 'Once per day on a short rest, you can recover spell slots with a combined level equal to half your wizard level (rounded up).', 
+ 'Class Feature', 1),
+ 
 
 -- Saving Throws
 (NULL, 'Strength Save', 'Proficiency in Strength saving throws', 'Saving Throw', 1),
@@ -167,7 +213,7 @@ VALUES
 (NULL, 'Performance', 'Your Charisma (Performance) checks determine how well you can delight an audience with music, dance, acting, storytelling, or some other form of entertainment.', 'Skill', 1),
 (NULL, 'Persuasion', 'Your Charisma (Persuasion) checks cover attempts to influence someone or a group of people with tact, social graces, or good nature.', 'Skill', 1);
 
--- 4. Insert level unlocks for Fighter level 1
+-- 4.1. Insert level unlocks for Fighter level 1
 INSERT INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
 VALUES
 -- Ability Score Assignment at character creation - Standard Array
@@ -221,15 +267,15 @@ VALUES
 -- Fighting Style (choose 1)
 ((SELECT id FROM class_reference WHERE class_name = 'Fighter'), 1, 'Fighting Style', 1,
  JSON_OBJECT(
-     'ability_ids', JSON_ARRAY(
-         (SELECT id FROM abilities WHERE ability_name = 'Defense Fighting Style'),
-         (SELECT id FROM abilities WHERE ability_name = 'Dueling Fighting Style'),
-         (SELECT id FROM abilities WHERE ability_name = 'Great Weapon Fighting Style'),
-         (SELECT id FROM abilities WHERE ability_name = 'Archery Fighting Style')
+     'ability_ids', (
+         SELECT JSON_ARRAYAGG(id) 
+         FROM abilities 
+         WHERE class_id = (SELECT id FROM class_reference WHERE class_name = 'Fighter')
+         AND ability_type = 'Fighting Style'
      ),
      'category', 'Fighting Style'
  ),
- 'Choose a Fighting Style: Defense, Dueling, Great Weapon Fighting, or Archery.'),
+ 'Choose a Fighting Style from your class list.'),
 
 -- Skill proficiencies (choose 2)
 ((SELECT id FROM class_reference WHERE class_name = 'Fighter'), 1, 'Skill Proficiency', 2,
@@ -279,6 +325,67 @@ VALUES
      'automatic', true
  ),
  'Fighters are proficient with simple and martial weapons.');
+
+-- 4.2. Insert level unlocks for Wizard level 1
+INSERT INTO level_unlocks (class_id, level, unlock_type, choice_count, config, infoblock)
+VALUES
+-- Hit Points
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'), 1, 'Hit Points', 1,
+    JSON_OBJECT(
+        'die', 6,
+        'modifier', 'intelligence'
+    ),
+ 'Wizards start with 6 + Intelligence modifier hit points at 1st level.'),
+
+-- Arcane Recovery, Spellcasting, Spellbook (automatic)
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'), 1, 'Class Feature', 1,
+ JSON_OBJECT(
+     'ability_ids', (
+         SELECT JSON_ARRAYAGG(id) 
+         FROM abilities 
+         WHERE class_id = (SELECT id FROM class_reference WHERE class_name = 'Wizard')
+         AND ability_type = 'Class Feature'
+         AND level_required = 1
+     ),
+     'automatic', true
+ ),
+ 'Wizards gain their starting class features.'),
+
+-- Saving throw proficiencies (automatic)
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'), 1, 'Saving Throw', 2,
+ JSON_OBJECT(
+     'ability_ids', JSON_ARRAY(
+         (SELECT id FROM abilities WHERE ability_name = 'Intelligence Save'),
+         (SELECT id FROM abilities WHERE ability_name = 'Wisdom Save')
+     ),
+     'automatic', true
+ ),
+ 'Wizards are proficient in Intelligence and Wisdom saving throws.'),
+
+-- Weapon proficiencies (automatic)
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'), 1, 'Weapon Proficiency', 1,
+ JSON_OBJECT(
+     'ability_ids', JSON_ARRAY(
+         (SELECT id FROM abilities WHERE ability_name = 'Simple Weapons')
+     ),
+     'automatic', true
+ ),
+ 'Wizards are proficient with simple weapons.'),
+
+-- Skill proficiencies (choose 2)
+((SELECT id FROM class_reference WHERE class_name = 'Wizard'), 1, 'Skill Proficiency', 2,
+ JSON_OBJECT(
+     'ability_ids', JSON_ARRAY(
+         (SELECT id FROM abilities WHERE ability_name = 'Arcana'),
+         (SELECT id FROM abilities WHERE ability_name = 'History'),
+         (SELECT id FROM abilities WHERE ability_name = 'Insight'),
+         (SELECT id FROM abilities WHERE ability_name = 'Investigation'),
+         (SELECT id FROM abilities WHERE ability_name = 'Medicine'),
+         (SELECT id FROM abilities WHERE ability_name = 'Religion')
+     ),
+     'category', 'Skill'
+ ),
+ 'Choose 2 skill proficiencies from: Arcana, History, Insight, Investigation, Medicine, or Religion.');
 
 -- Insert "Test Hero" character
 INSERT INTO characters (
@@ -365,3 +472,49 @@ VALUES
      (SELECT id FROM abilities WHERE ability_name = 'Athletics'), TRUE, 3),
     ((SELECT id FROM characters WHERE char_name = 'Test Hero'),
      (SELECT id FROM abilities WHERE ability_name = 'Perception'), TRUE, 2);
+
+-- 6. Insert "Morgan the Wizard" (Test Wizard)
+INSERT INTO characters (
+    user_id, char_name, total_level, total_hp, initiative_bonus, 
+    strength, dexterity, constitution, intelligence, wisdom, charisma, languages
+)
+VALUES (
+    (SELECT id FROM users WHERE user_name = 'testuser'),
+    'Morgan the Wizard',
+    1,
+    7, -- HP = 6 + Con mod (1)
+    2, -- Init = Dex mod (+2)
+    8, 14, 13, 15, 12, 10,
+    'Common, Draconic'
+);
+
+INSERT INTO character_classes (character_id, class_id, class_level)
+VALUES (
+    (SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+    (SELECT id FROM class_reference WHERE class_name = 'Wizard'),
+    1
+);
+
+-- Automatic Features
+INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+VALUES 
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Arcane Recovery'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Spellcasting (Wizard)'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Spellbook'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Intelligence Save'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Wisdom Save'), TRUE, 0),
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Simple Weapons'), TRUE, 0);
+
+-- Chosen Skills
+INSERT INTO character_abilities (character_id, ability_id, proficient, proficiency_bonus)
+VALUES 
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Arcana'), TRUE, 2),
+    ((SELECT id FROM characters WHERE char_name = 'Morgan the Wizard'),
+     (SELECT id FROM abilities WHERE ability_name = 'Investigation'), TRUE, 2);
