@@ -28,6 +28,5 @@ export default (sequelize) => {
             type: DataTypes.INTEGER,
             defaultValue: 1,
         }
-    },
-    { timestamps: false });
+    });
 }

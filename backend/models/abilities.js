@@ -37,6 +37,5 @@ export default (sequelize) => {
         prerequisite_list_id: {
             type: DataTypes.INTEGER,
         }
-    },
-    { timestamps: false });
+    });
 }
