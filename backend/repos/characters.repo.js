@@ -6,14 +6,7 @@ export async function createCharacter(characterData) {
 }
 
 export async function findCharacterById(characterId) {
-    return await db.Characters.findByPk(characterId, {
-        include: [
-            {
-                model: db.Users,
-                as: 'user'
-            }
-        ]
-    });
+    return await db.Characters.findByPk(characterId);
 }
 
 export async function findAllCharactersByUserId(userId) {
