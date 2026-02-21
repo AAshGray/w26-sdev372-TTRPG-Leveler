@@ -1,37 +1,26 @@
-// import mysql from 'mysql2/promise';
-import {Sequelize} from 'sequelize';
+
+import mysql from 'mysql2/promise';
 import dotenv from 'dotenv';
 
 dotenv.config();
 
-// // Create connection pool
-// const pool = mysql.createPool({
-//     host: process.env.DB_HOST || 'localhost',
-//     user: process.env.DB_USER || 'root',
-//     password: process.env.DB_PASSWORD || '',
-//     database: process.env.DB_NAME || 'ttrpg_leveler',
-//     port: process.env.DB_PORT || 3306,
-//     waitForConnections: true,
-//     connectionLimit: 10,
-//     queueLimit: 0
-// });
-
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'ttrpg_leveler',
-  process.env.DB_USER || 'root',
-  process.env.DB_PASSWORD || '',
-  {
+// Create connection pool
+const pool = mysql.createPool({
     host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
-    dialect: 'mysql',
-    logging: false
-  }
-);
+    user: process.env.DB_USER || 'root',
+    password: process.env.DB_PASSWORD || '',
+    database: process.env.DB_NAME || 'ttrpg_leveler',
+    port: process.env.DB_PORT || 3306,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0
+});
 
 async function testConnection() {
     try {
-        await sequelize.authenticate();
+        const connection = await pool.getConnection();
         console.log('Database connected successfully');
+        connection.release();
         return true;
     } catch (error) {
         console.error('Database connection failed:', error.message);
@@ -39,4 +28,4 @@ async function testConnection() {
     }
 }
 
-export { sequelize, testConnection };
+export { pool, testConnection };
