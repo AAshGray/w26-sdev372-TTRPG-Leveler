@@ -76,6 +76,11 @@ async function startServer() {
     if (!dbConnected) {
         console.error('Server starting without database connection');
         console.error('Please check your database configuration in .env file');
+    } else {
+        console.log('Database connection successful');
+        const db = await import('./models/index.js');
+        await db.default.sequelize.sync({ alter: true });
+        console.log('Database synchronized');
     }
 
     app.listen(PORT, HOST, () => {
