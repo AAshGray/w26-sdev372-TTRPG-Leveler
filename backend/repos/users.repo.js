@@ -5,7 +5,7 @@ export async function createUser(userData) {
     return await db.Users.create(userData);
 }
 
-export async function findUserById(userId) {
+export async function getUserById(userId) {
     return await db.Users.findByPk(userId, {
         include: [
             {
