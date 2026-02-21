@@ -11,14 +11,13 @@ import characterRoutes from './routes/characters.js';
 dotenv.config();
 
 const app = express();
-const BACKEND_PORT = process.env.BACKEND_PORT || 3000;
-const HOST = process.env.NODE_ENV = 'production' ? '0.0.0.0' : 'localhost';
-const API_BASE_URL = `http://${HOST}:${BACKEND_PORT}/api`;
+const PORT = process.env.INTERNAL_PORT || 3000;
+const HOST = '0.0.0.0';
 
 // Middleware
-app.use(cors()); // Enable CORS for frontend
-app.use(express.json()); // Parse JSON bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Request logging middleware
 app.use((req, res, next) => {
@@ -50,10 +49,7 @@ const rootHandler = (req, res) => {
     });
 };
 
-// API Root endpoint
 app.get('/api', rootHandler);
-
-// Root endpoint
 app.get('/', rootHandler);
 
 // 404 handler
@@ -75,7 +71,6 @@ app.use((err, req, res, next) => {
 
 // Start server
 async function startServer() {
-    // Test database connection first
     const dbConnected = await testConnection();
 
     if (!dbConnected) {
@@ -83,10 +78,10 @@ async function startServer() {
         console.error('Please check your database configuration in .env file');
     }
 
-    app.listen(PORT, () => {
+    app.listen(PORT, HOST, () => {
         console.log(`Server running!`);
         console.log(`Local:   http://localhost:${PORT}`);
-        console.log(`Docker:  http://localhost:8080 (via Nginx)`);
+        console.log(`Docker:  http://localhost:80 (via Nginx)`);
         console.log(`API:     http://localhost:${PORT}/api`);
     });
 }
