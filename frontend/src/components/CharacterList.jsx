@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import characterController from '../controllers/CharacterController';
 import CharacterCard from './CharacterCard';
+import CreateCharacterCard from './CreateCharacterCard';
 import './CharacterList.css';
 
 /**
@@ -53,6 +54,7 @@ function CharacterList() {
             <div className="character-list empty">
                 <h2>No Characters Found</h2>
                 <p>You don't have any characters yet.</p>
+                <CreateCharacterCard />
             </div>
         );
     }
@@ -64,6 +66,7 @@ function CharacterList() {
                 {characters.map(character => (
                     <CharacterCard key={character.id} character={character} />
                 ))}
+                <CreateCharacterCard />
             </div>
         </div>
     );
