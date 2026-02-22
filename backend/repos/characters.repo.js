@@ -17,6 +17,10 @@ export async function findAllCharactersByUserId(userId) {
     });
 }
 
+export async function findAllCharacters() {
+    return await db.Characters.findAll();
+}
+
 export async function updateCharacter(characterId, updateData) {
     return await db.Characters.update(updateData, {
         where: {
