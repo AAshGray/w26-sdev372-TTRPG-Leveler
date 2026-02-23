@@ -115,6 +115,22 @@ class ApiService {
         }
     }
 
+    async post(endpoint, body, options = {}) { 
+        try {
+            const url = `${this.baseURL}${endpoint}`;
+            const response = await this.fetchWithTimeout(url, {
+                method: 'POST',
+                headers: this.getHeaders(options.headers),
+                body: JSON.stringify(body),
+                ...options
+            });
+            return await this.handleResponse(response);
+        } catch (error) {
+            console.error('POST request failed:', error);
+            throw error;
+        }
+    }
+
 }
 
 // Export singleton instance

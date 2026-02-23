@@ -7,6 +7,8 @@ import defineCharacterClasses from './character_classes.js';
 import defineCharacters from './characters.js';
 import defineClassReference from './class_reference.js';
 import defineUsers from './users.js';
+import defineProgression from './progression.js';
+import defineProgressionAbilities from './progression_abilities.js';
 
 const Abilities = defineAbilities(sequelize);
 const AbilityPrerequisiteList = defineAbilityPrerequisiteList(sequelize);
@@ -15,6 +17,8 @@ const CharacterClasses = defineCharacterClasses(sequelize);
 const Characters = defineCharacters(sequelize);
 const ClassReference = defineClassReference(sequelize);
 const Users = defineUsers(sequelize);
+const Progression = defineProgression(sequelize);
+const ProgressionAbilities = defineProgressionAbilities(sequelize);
 
 Users.hasMany(Characters, { foreignKey: 'user_id', as: 'characters' });
 Characters.belongsTo(Users, { foreignKey: 'user_id', as: 'user' });
@@ -34,6 +38,24 @@ CharacterAbilities.belongsTo(Characters, { foreignKey: 'character_id', as: 'char
 CharacterAbilities.belongsTo(Abilities, { foreignKey: 'ability_id', as: 'ability' });
 Abilities.hasMany(CharacterAbilities, { foreignKey: 'ability_id', as: 'character_abilities' });
 
+ClassReference.hasMany(Progression, { foreignKey: 'class_id', as: 'progression' });
+Progression.belongsTo(ClassReference, { foreignKey: 'class_id', as: 'class_reference' });
+
+Progression.belongsToMany(Abilities, {
+    through: ProgressionAbilities,
+    foreignKey: 'progression_id',
+    otherKey: 'ability_id',
+    as: 'abilities'
+});
+
+Abilities.belongsToMany(Progression, {
+    through: ProgressionAbilities,
+    foreignKey: 'ability_id',
+    otherKey: 'progression_id',
+    as: 'progressions'
+});
+
+
 export default {
     Abilities,
     AbilityPrerequisiteList,
@@ -42,5 +64,7 @@ export default {
     Characters,
     ClassReference,
     Users,
+    Progression,
+    ProgressionAbilities,
     sequelize
-}
+};

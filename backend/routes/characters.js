@@ -3,9 +3,11 @@
  * API endpoints for character CRUD operations
  */
 import express from 'express';
-import { pool } from '../config/database.js';
+import * as charRepo from '../repos/characters.repo.js';
+import { authenticate } from '../middleware/auth.js';
 
 const router = express.Router();
+//router.use(authenticate);
 
 /**
  * GET /api/characters/:id
@@ -14,20 +16,17 @@ const router = express.Router();
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        // Corrected name to match your characters.repo.js
+        const character = await charRepo.findCharacterById(id);
 
-        const [rows] = await pool.query(
-            'SELECT * FROM characters WHERE id = ?',
-            [id]
-        );
-
-        if (rows.length === 0) {
+        if (!character) {
             return res.status(404).json({
                 error: 'Character not found',
-                message: `No character found with ID ${id}`
+                message: `Character with ID ${id} not found`
             });
         }
 
-        res.json(rows[0]);
+        res.json(character);
     } catch (error) {
         console.error('Error fetching character:', error);
         res.status(500).json({
@@ -43,8 +42,9 @@ router.get('/:id', async (req, res) => {
  */
 router.get('/', async (req, res) => {
     try {
-        const [rows] = await pool.query('SELECT * FROM characters');
-        res.json(rows);
+        // Reminder: Ensure you added this function to characters.repo.js
+        const characters = await charRepo.findAllCharacters();
+        res.json(characters);
     } catch (error) {
         console.error('Error fetching characters:', error);
         res.status(500).json({
@@ -61,15 +61,30 @@ router.get('/', async (req, res) => {
 router.get('/user/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
+        // Replaced pool.query with your repository method
+        const characters = await charRepo.findAllCharactersByUserId(userId);
 
-        const [rows] = await pool.query(
-            'SELECT * FROM characters WHERE user_id = ?',
-            [userId]
-        );
-
-        res.json(rows);
+        res.json(characters);
     } catch (error) {
         console.error('Error fetching user characters:', error);
+        res.status(500).json({
+            error: 'Internal server error',
+            message: error.message
+        });
+    }
+});
+
+/**
+ * POST /api/characters/create/character
+ * Create a new character
+ */
+router.post('/create', authenticate, async (req, res) => {
+    try {
+        // Using the create method from your repo
+        const newCharacter = await charRepo.createCharacter(req.body);
+        res.status(201).json(newCharacter);
+    } catch (error) {
+        console.error('Error creating character:', error);
         res.status(500).json({
             error: 'Internal server error',
             message: error.message
